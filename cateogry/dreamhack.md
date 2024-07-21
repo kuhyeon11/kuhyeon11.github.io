@@ -1,5 +1,5 @@
 ---
 layout: category
-title: pwnable
+title: dreamhack
 permalink: category/dreamhack
 ---
