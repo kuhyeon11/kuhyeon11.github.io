@@ -20,11 +20,8 @@ author: kuhyeon11
 ###############################################
 
 navbar-links:
-  About Me: "aboutme"
-  Resources:
-    - Beautiful Jekyll: "https://beautifuljekyll.com"
-    - Learn markdown: "https://www.markdowntutorial.com/"
-  Author's home: "https://github.com/kuhyeon11"
+  Category:
+    - dreamhack: "/category/dreamhack"
 
 ################
 # --- Logo --- #
