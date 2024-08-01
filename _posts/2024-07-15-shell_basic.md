@@ -72,10 +72,10 @@ After receiving 'shellcode: ', we can send shellcode and server will exec that b
 
 ***
 
-## Payload
+## Ex code
 
-We can use shellcraft() of pwntools for writing shellcode.
-Shellcode must consist with these things.
+We can use shellcraft() of pwntools for writing shellcode.<br />
+Shellcode must consist with these things.<br />
 
 1. Open flag's file. (fd -> rax)
 2. Read flag and write that to buffer. (from rax to rsp)

@@ -22,6 +22,7 @@ author: kuhyeon11
 navbar-links:
   Category:
     - wargame: "/category/wargame"
+    - ctf: "/category/ctf"
 
 ################
 # --- Logo --- #
