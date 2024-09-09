@@ -5,7 +5,7 @@ comments: true
 category: ctf
 ---
 
-## Analysis source code
+## Source Code Analysis
 
 - main
 
@@ -92,9 +92,9 @@ __int64 __fastcall main(int a1, char **a2, char **a3)
   return 0LL;
 }
 ```
-In main, we can make oven. <br />
+In the main function, we can create ovens. <br />
 Oven's maximum number is 4, and each oven is managed by muti-threading. <br />
-All variables that could become race conditions were mutexed. <br />
+All variables that could lead to race conditions are protected by mutexes. <br />
 <br />
 
 - oven_thread
@@ -265,10 +265,10 @@ LABEL_19:
 Each oven can cook some foods. Pizza, Cake, Bread and Pie. <br />
 Also, we can make special food. If we insert input 5, we can name a food. <br />
 All variables in this functions are mutexed too. <br />
-This multi-threading function, so the stack is allocated and managed separately. <br />
+This is a multi-threaded function, so the stack is allocated and managed separately. <br />
 Cooking is managed by start_routine function. <br />
 We can insert cooking time, and the remaining time can be checked in 1 second increments. <br />
-If one cook is over, then the list of cooking is moved to front. <br />
+When one cooking process is finished, the list of cooking items is shifted forward. <br />
 <br />
 
 - start_routine
@@ -344,17 +344,17 @@ void __fastcall __noreturn start_routine(struct oven_info *oven_info)
   }
 }
 ```
-In this function, it refers to total food number in oven. <br />
-However, unlike other functions, it doesn't use mutex for this variable. <br />
-So here is vulnerability. <br />
+This function refers to the total number of food items in the oven. <br />
+However, unlike other functions, it doesn't use a mutex for this variable. <br />
+This creates a vulnerability. <br />
 If we can decrease total food number between checking number time and decreasing number time, we can make race condition, and total food number can be negative. <br />
 <br />
 
 ## Analyze & Exploit
 <br />
 
-### leak address
-- If a food in oven is over, it's array is consists with next food info.
+### Leak addresses
+- When a food item in the oven is finished, its array is filled with the next food's information.
 - But if food is 4th, there isn't next food, so we can copy some address which located in there.
 - We can leak tls_addr and heap_addr.
 <br />
@@ -380,9 +380,9 @@ for i in range(0, 4):
 ```
 <br />
 
-### Caculate time of ds
-- For making race condition, it is a timing.
-- Between insert first food and second food, race condition part must operated.
+### Caculating time of ds
+- To create a race condition, timing is crucial.
+- The race condition must occur between inserting the first and second food items.
 - So, I check that part's time, and if it is X seconds, I use X/2 seconds.
 <br />
 
@@ -396,9 +396,9 @@ print(end_time - start_time)
 ```
 <br />
 
-### Make race condition
+### Creating race condition
 - By using time which we calculate, we can make race condition.
-- But there is so important point. If we success, number of food is overwrite by second food's time.
+- There's an important point to note: If successful, the number of food items is overwritten by the second food's cooking time.
 - We can insert negative time also, so we can access to other stack's address by this.
 <br />
 
@@ -421,8 +421,8 @@ while 1:
 ```
 <br />
 
-### leak libc
-- For leak libc, food's time of previous step is so important.
+### Leak libc's address
+- To leak the libc address, the food's cooking time from the previous step is crucial.
 - All you have to do is observe the stack, find the libc address to leak, and leak it.
 <br />
 
@@ -434,10 +434,10 @@ print(hex(libc_base))
 ```
 <br />
 
-### Overwrite RA of oven_thread
-- Now, we know libc's address and oven_thread's return address too.
+### Overwriting RA of oven_thread
+- Now that we know both the libc address and oven_thread's return address.
 - If we leak libc's address from above of RA, then we can overwrite RA at once.
-- I tried for using two oven cause of probability to get libc, but it doesn't work well.
+- I attempted to use two ovens to increase the probability of getting the libc address, but it didn't work well.
 <br />
 
 ```python

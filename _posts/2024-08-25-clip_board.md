@@ -5,7 +5,7 @@ comments: true
 category: ctf
 ---
 
-## Analysis source code
+## Source Code Analysis
 
 - main
 
@@ -72,7 +72,7 @@ int get_int()
 }
 ```
 The get_int function reads 20 bytes. If it contains a '\n' at the end, it changes it to a null byte. <br />
-After that, returns atoi of input. <br />
+After that, it returns the atoi value of the input. <br />
 <br />
 
 - get_input
@@ -141,10 +141,10 @@ int AddClipboard()
   return (int)_rax;
 }
 ```
-First, it receives input by get_int function. It oprerates only when input is lower then 10. <br />
-Here, we can find a vulnerability. If the input is a negative number, it can pass the conditional statement. <br />
-After that, it receives size. If must lower or equal than 0x100. <br />
-Allocate space at heap by malloc(), read contents, and write it to space. <br />
+First, it receives input via the get_int function. It operates only when the input is lower than 10. <br />
+Here, we can find a vulnerability: if the input is a negative number, it can pass the conditional statement. <br />
+After that, it receives the size, which must be less than or equal to 0x100. <br />
+It allocates space on the heap using malloc(), reads contents, and writes them to the allocated space. <br />
 This program distinguishes whether the clipboard is written or not by check_list.(0x4090, global variable) <br />
 There is also size_list(0x40a0, global variable), and chunk_list(0x4040, global variable). <br />
 <br />
@@ -179,8 +179,8 @@ int DelClipboard()
   return (int)_rax;
 }
 ```
-DelClipboard receives index which want to delete. If it doesn't exists, then it doesn't work. <br />
-It checks clipboard exists or not by check_list value is '\x00' or not. <br />
+DelClipboard receives the index of the clipboard to delete. If it doesn't exist, the function doesn't perform any action. <br />
+It checks whether the clipboard exists by verifying if the check_list value is '\x00' or not. <br />
 Even if it is neither '\x00' nor '\x01', this function works. <br />
 Free heap space, delete chunk_list, check_list, and size_list. <br />
 <br />
@@ -214,14 +214,14 @@ int ViewClipboard()
   return result;
 }
 ```
-ViewClipboard just receives index and display that clipboard. <br />
-If we insert negative index, but size is not in range, we can't display it. <br />
+ViewClipboard simply receives an index and displays the corresponding clipboard. <br />
+If we insert a negative index but the size is not in range, we can't display it. <br />
 <br />
 
 ## Analyze & Exploit
 <br />
 
-There's no function for modifying data. Only creating or erasing is possible. <br />
+There's no function for modifying data; only creating or erasing is possible. <br />
 First, let's see if we can get some address is possible. <br />
 <br />
 
@@ -230,7 +230,7 @@ First, let's see if we can get some address is possible. <br />
 - If we make clip_board and delete it, a tcache chunk is created.
 - But if we free same size of chunk more than 7, it goes to fastbin or unsortedbin.
 - If there is unsortedbin chunk(A), and we allocate lower size of chunk(B) of that, the chunk is divided into two chunk(B and C). One is allocate(B), and the other(C) will left at unsortedbin.
-- When allocate chunk(B), fd and bk of unsortedbin are still remains. If we print out it by ViewClipboard(), we can get libc_address. Becuase fd and bk is main_arena's address.
+- When chunk(B) is allocated, the fd and bk pointers of the unsorted bin still remain. If we print out it by ViewClipboard(), we can get libc_address. Becuase fd and bk is main_arena's address.
 <br />
 
 ```python
@@ -259,7 +259,7 @@ print(hex(libc_base))
 - At bss, global variable's order is addr_list, check_list, size_list.
 - If we input a negative index, size can be written to check_list or addr_list, and check can be written to addr_list.
 - If we input -7, size is written to addr_list[8], check is decided by addr_list[9]'s 0xff00 byte. Address is written at dso_handle, and it is not that important.
-- Changing add_list[9]'s value is very sensitive. Control that more effeciently, heap's address must be end with 0xf000. Program prints heap's address when to start, so we can decide very fast.
+- Changing add_list[9]'s value is very sensitive. To control this more efficiently, the heap's address must end with 0xf000. Program prints heap's address when to start, so we can decide very fast.
 - After that, we can make next chunk's address is end with 0x0000 by allocate lots of chunk and free it.
 <br />
 
@@ -301,7 +301,7 @@ for i in range(6):
 - If we write contents appropritately, we can make fake chunk which address is end with 0x0100.
 - Finally we can control free chunk's fd.
 - We just have to be careful with the number of chunks in the tcache bin. Also, be careful to XOR the tcache_key with the fd value.
-- stack's address is written on <__libc_argv>
+- The stack's address is written in <__libc_argv>.
 <br />
 
 ```python
@@ -326,7 +326,7 @@ print(hex(rbp_addr))
 <br />
 
 ### Write to rbp for ROP
-- If we use chunk's which address is end with 0x00?0 or 0x01?0, we can allocate chunk to stack.
+- If we use chunks whose addresses end with 0x00?0 or 0x01?0, we can allocate a chunk on the stack.
 - Overwrite main's return_address, and do ROP.
 - Be careful of stack's address alignment.
 <br />
