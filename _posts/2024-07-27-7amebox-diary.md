@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[CODEGATE 2018] 7amebox-tiny-adventure"
+title: "[CODEGATE 2018] 7amebox-diary"
 comments: true
 category: ctf
 ---
@@ -14,7 +14,7 @@ VM is same. <br />
 
 ## firmware
 
-This is decompile results. <br />
+This is disassemble results. <br />
 
 ```
 [intro]

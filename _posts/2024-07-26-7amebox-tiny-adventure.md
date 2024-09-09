@@ -14,7 +14,7 @@ VM is same. <br />
 
 ## firmware
 
-This is decompile results. <br />
+This is disassemble results. <br />
 
 ```
 [intro]
